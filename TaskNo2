@@ -1,0 +1,59 @@
+TASK2
+
+//duplicate records
+var duplicateRecords = dtDuplicateRows.Rows
+.Cast<DataRow>()
+.GroupBy(r => r["SERVICE_NUMBER"]) 
+.Where(g => g.Count() <3) 
+.SelectMany(g => g).CopyToDataTable(); 
+
+//Comments for above
+groupby creates a collection of groups (here collection with "Service number" as key)
+Cannot be casted to datarow
+Cannot not be copied to datatable
+
+
+splittedRecordsSet.Tables.Add(retrievedDataSet.Tables[0].Clone()); //Add Action details
+if (duplicateRecords.Rows.Count > 1)
+{
+DataTable dtActionUpdated =new DataTable();
+// Duplicate records are already grouped by Service Number
+var groups = duplicateRecords.Rows.Cast<DataRow>().GroupBy(x => x["SERVICE_NUMBER"]);
+foreach (var group in groups) 
+{
+dtActionUpdated = (DuplicateRecordActionString(group.CopyToDataTable())); 
+	foreach (DataRow dr in dtActionUpdated.Rows)
+	{
+	}
+}
+//variable dr is not valid here. Out of scope.
+splittedRecordsSet.Tables[1].ImportRow(dr); 
+}
+//this has to be done inside foreach for group , to get duplictes group wise
+splittedRecordsSet.Tables[1].TableName = "Duplicates"; splittedRecordsSet.Tables[1].AcceptChanges();
+
+-------------------------------------------------------------------------------------------------------------------------------
+Refactored code
+-------------------------------------------------------------------------------------------------------------------------------
+var duplicateRecords = dtDuplicateRows.Rows
+.GroupBy(r => r["SERVICE_NUMBER"]) 
+.Where(g => g.Count() <3).ToList();
+
+
+splittedRecordsSet.Tables.Add(retrievedDataSet.Tables[0].Clone()); //Add Action details
+if (duplicateRecords.Any())
+{
+	DataTable dtActionUpdated =new DataTable();
+	foreach (var dupRec in duplicateRecords)
+	{
+		foreach (DataRow dr in dtActionUpdated.Rows)
+		{
+			splittedRecordsSet.Tables[1].ImportRow(dr);
+		}
+		splittedRecordsSet.Tables[1].TableName = "Duplicates"; splittedRecordsSet.Tables[1].AcceptChanges();
+	}
+	
+	
+}
+
+

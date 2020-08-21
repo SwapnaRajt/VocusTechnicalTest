@@ -1,0 +1,21 @@
+Solution has 
+1. Billit Website
+2. Dodo Rest API , has 2 APIs
+
+
+Both of them display below details by CustomerID
+1.CustomerDetails 
+2.CustomerProductDetails  
+
+Assumption is already CustomerDatabase has relevant information.
+Database : Sql server Management studio
+DBScript.Sql , creates database with required tables and data required by Web App and Web API.
+
+
+Due to time constaint did not implement 
+1. Unit test and web api testing 
+2. Dependancy Injection
+
+--------------------------------------------------------------------
+Task2 and Task 3 are done in note pad 
+And added by comments as c# comments.

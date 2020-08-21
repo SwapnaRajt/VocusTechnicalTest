@@ -1,0 +1,60 @@
+3. Code Improvement/Review
+Task: You are to review the code below. Without knowing the business requirement, comment on how the below code could be improved from your point of view.
+
+[System.Web.Services.WebMethod]
+public static string GetLeads(string simNo, string email) 
+{
+try 
+{
+		 
+		// send named variables with null values, instead of null
+		var deliverySalesLeads = deliverySalesLeadsRepository.GetDeliverySalesLeads(null, null, email, null, null, simNo);
+		
+		// Both these can be combined to one query
+		
+		// Don't return sales leads with CustomerCreated status
+		deliverySalesLeads.RemoveAll(x => x.DelStatus == DeliveryStatus.CustomerCreated);
+		// Don't return sales leads with RTS status
+		deliverySalesLeads.RemoveAll(y => y.DelStatus == DeliveryStatus.RTS); 
+		
+		DeliverySalesLead = deliverySalesLeads.FirstOrDefault();
+		if (DeliverySalesLead != null) 
+		{
+			// Prefer using string.IsNullOrwhitespace , checks blank spaces as well
+			if (string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(DeliverySalesLead.CustEmail))
+			{
+					return "Enter Email Address";
+			}
+			// promo code applies during signups 
+			GenericPromoDetails promoDetails = ApplyPromoCode(DeliverySalesLead);
+			string planAndPromoCode = string.Empty; 
+			if (promoDetails != null)
+			{
+				// check for null value of promoDetails.DiscountAmount, before assigning
+				//create an object from context and modify and assign it back
+				HttpContext.Current.Session["DeliverySalesLead_PromoCodePercentage"] = promoDetails.DiscountAmount;
+				
+				// check for null value of promoDetails.PromoCode, before assigning
+				promoDetails.PromoCode;
+				HttpContext.Current.Session["DeliverySalesLead_PromoCode"] =
+				// The "|" is added to split the promo details.
+				planAndPromoCode = "|" + promoDetails.PlanIds + "|" + promoDetails.TransactionText;
+			}
+			//prefer datatype , then var
+			var addonList = GetAddonList(DeliverySalesLead.SelectedAddons); 
+			// prefer adding it to a variable and then returning variable.
+			// concatenate by string builder
+			return DeliverySalesLead.SelectedPlanCode + addonList +planAndPromoCode;
+        }
+		else
+		{
+			HttpContext.Current.Session["DeliverySalesLead_PromoCodePercentage"] = null; 
+			HttpContext.Current.Session["DeliverySalesLead_PromoCode"] = null;
+		}
+		return null;
+	}
+catch (Exception)
+{
+throw; 
+}
+}
